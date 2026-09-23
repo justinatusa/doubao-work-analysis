@@ -81,6 +81,7 @@ flowchart TB
 | [docs/persistence-io.md](docs/persistence-io.md) | 热池、上传下载、office 版 |
 | [docs/product-fingerprint.md](docs/product-fingerprint.md) | AIO、创作画布、内部模块、预装 |
 | [docs/observability.md](docs/observability.md) | 日志、OTEL、审计 |
+| [docs/comparables.md](docs/comparables.md) | 与业界沙箱对照 |
 | [docs/open-questions.md](docs/open-questions.md) | 未决问题 |
 | [changelog.md](changelog.md) | 观测日志 |
 
@@ -91,6 +92,7 @@ flowchart TB
 - **Source of Truth（SoT）= `docs/`**：新证据合并进主题文，不按聊天轮次建文件。  
 - **`changelog.md`**：只记「哪天补了什么」。  
 - 派生对外长文（若需要）再从 `docs/` 抽出；当前 **暂无单独对外长文**。
+- 打码摘录见 [`evidence/2026-09-24/`](evidence/2026-09-24/)（重构摘要，非全量终端日志）。
 
 ---
 

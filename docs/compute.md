@@ -55,3 +55,8 @@ dumb-init (PID1)
 ## 证据路径（当次）
 
 `ps`、`mount`、`lsblk`、cgroup 文件、`/opt/gem/supervisord*.conf`、`/opt/gem/nginx*.conf`、相关环境变量。
+
+## 镜像版本（实测，L）
+
+- `IMAGE_VERSION=1.14.10`
+- `BUILD_IMAGE_DIR_PREFIX=./docker_build`

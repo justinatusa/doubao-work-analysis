@@ -30,6 +30,10 @@
 | 服务 | `mcp_vm_server`、`mcp_vm_tool` |
 | 域 | `certs.doubaocdn.com`、`ext.volces.com`、`api5-normal-lq.doubao.com`、`mediakit.cn-beijing.volces.com`、`mcp.doubaocdn.com` |
 
+## 镜像与预装
+
+完整「出厂带什么」说明已单列为 [`preinstall.md`](preinstall.md)。下面保留指纹级摘要。
+
 ## 镜像供应链摘要（实测，L）
 
 - `IMAGE_VERSION=1.14.10`（与 `sandbox_get_context` 一致）

@@ -11,3 +11,4 @@
 - R5（A–G）：双会话目录、standby/cold、内置 Sandbox MCP 线索、创作画布 CLI、Go 模块指纹。
 - SoT 改为 Obsidian 式 `docs/` + `changelog` + `publish/`。
 - **R6（H–N）**：Sandbox 工具全表与真实调用；三控制通道；AIO/多 CLI；可观测空洞；镜像 v1.14.10 与预装摘要；上传默认 `/tmp`；standby 跳过项与 PROFILE=`all|ci`。
+- 按调研评审：补 `docs/comparables.md`、`evidence/2026-09-24` 打码摘要；收紧部分措辞强度。

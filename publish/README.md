@@ -1,5 +1,5 @@
 # publish/
 
-对外释放稿（一篇读完的 teardown）放这里，**从 `docs/` 派生，不另起事实源**。
+当前 **暂无** 对外长文。对外入口是仓库根目录 README + `docs/`。
 
-当前以根目录 [README.md](../README.md) 为对外入口。若需要单独长文，新增例如 `publish/doubao-work-teardown.md`。
+若日后需要博客/帖子形态，再从 `docs/` 派生单篇到此目录；不要在这里维护第二套事实。

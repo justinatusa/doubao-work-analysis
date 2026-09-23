@@ -1,40 +1,43 @@
 # Doubao Work Analysis
 
-对 **豆包工作（Doubao Work）** 运行时沙箱的观察笔记。材料来自对产品内 Agent 的现场取证式提问（让其在沙箱内跑命令、读配置、测网络），**不是**字节 / 火山官方文档。
+Obsidian 式知识库：用 GitHub 存可版本化的 Markdown。主题是 **豆包工作 Agent 云沙箱运行时** 的观察型 teardown（非官方文档）。
 
-| 图例 | 含义 |
+## 怎么读
+
+1. 先看本页 TL;DR  
+2. 总图 → [`docs/architecture.md`](docs/architecture.md)  
+3. 按兴趣进 `docs/` 各篇  
+4. 未决 → [`docs/open-questions.md`](docs/open-questions.md)  
+5. 观测日志 → [`changelog.md`](changelog.md)
+
+对外长文（若有）只放在 [`publish/`](publish/)；**Source of Truth 是 `docs/`**。
+
+## TL;DR（2026-09-24）
+
+1. **形态**：Agent + 临时 Linux 云电脑（Kata microVM），带桌面、Chrome、MCP、受控出网。  
+2. **计算**：火山 ByteFaaS/veFaaS；约 2 vCPU / 4 GiB；`/home/user` 经 hpvs 可跨会话。  
+3. **网络**：VortexIP 出口 + 共享 NAT；技术站白名单，常见消费站黑洞；包源走公开镜像或透明缓存。  
+4. **Agent**：模型侧 browser MCP（自研 CDP）+ 内置 Sandbox 工具；飞书域名本地 MITM，鉴权回平台。  
+5. **暴露**：沙箱 nginx 信任内网；用户鉴权在外层网关。
+
+## 目录（MOC）
+
+| 路径 | 内容 |
 |------|------|
-| **实测** | 有路径、命令或响应头支撑 |
-| **推断** | 由产品形态或旁证推出，尚未坐实 |
+| [docs/method.md](docs/method.md) | 方法与图例 |
+| [docs/architecture.md](docs/architecture.md) | 架构总图 |
+| [docs/compute.md](docs/compute.md) | 计算 / 沙箱 / 配额 |
+| [docs/network.md](docs/network.md) | 出口 / DNS / 包源 |
+| [docs/agent-surface.md](docs/agent-surface.md) | MCP / ComputerUse / 会话 |
+| [docs/desktop-expose.md](docs/desktop-expose.md) | noVNC / nginx / CDP |
+| [docs/persistence-io.md](docs/persistence-io.md) | 热池 / 上传下载 |
+| [docs/product-fingerprint.md](docs/product-fingerprint.md) | 创作画布 / 内部模块 |
+| [docs/open-questions.md](docs/open-questions.md) | 未决 |
+| [changelog.md](changelog.md) | 观测日志 |
+| [publish/](publish/) | 对外稿（占位） |
+| [evidence/](evidence/) | 可选证据摘录 |
 
-## 一页结论
+## 归类
 
-1. **形态**：Agent + 临时 Linux 云电脑（microVM），带桌面、Chrome、MCP 工具面、受控出网。
-2. **计算层（实测）**：火山引擎 ByteFaaS / veFaaS；Kata Containers + Nydus；约 2 vCPU / 4 GiB；函数名形如 `super-25-general-agent-efs`。
-3. **网络层（实测）**：容器内多层代理 → VortexIP 出口；落地 IP 可落在阿里云 ASN（共享 NAT）；按域名白名单 / DNS 黑洞分流；包管理走公开镜像或透明缓存网关。
-4. **Agent 面（实测）**：模型侧 MCP 目前主要挂 **browser**（自研 CDP 桥）；飞书 / Lark 相关域名被本地 MITM 劫持，鉴权回源平台管控面。
-5. **持久化（实测）**：`/home/user` 走 hpvs 共享存储，会话目录可跨天保留；根 overlay 随实例销毁。
-
-## 文档索引
-
-| 文档 | 内容 |
-|------|------|
-| [notes/00-timeline.md](notes/00-timeline.md) | 诱导时间线与材料来源 |
-| [notes/01-compute-sandbox.md](notes/01-compute-sandbox.md) | 计算 / 沙箱 / 挂载 / 配额 |
-| [notes/02-network-egress.md](notes/02-network-egress.md) | 出口代理 / DNS / NAT / 包源 |
-| [notes/03-agent-runtime.md](notes/03-agent-runtime.md) | MCP / Chrome / hijack / 会话 |
-| [notes/04-agent-surface.md](notes/04-agent-surface.md) | MCP / ComputerUse / 会话目录 |
-| [notes/05-desktop-expose.md](notes/05-desktop-expose.md) | noVNC / nginx / CDP 对外 |
-| [notes/06-persistence-io.md](notes/06-persistence-io.md) | 热池同步 / 上传下载 |
-| [notes/07-product-fingerprint.md](notes/07-product-fingerprint.md) | 创作画布 CLI / 内部模块 |
-| [notes/open-questions.md](notes/open-questions.md) | 尚未坐实的洞 |
-
-## 方法（简述）
-
-不依赖外部漏洞利用：在产品对话里要求模型做「现场勘察」（进程树、挂载、cgroup、代理环境、证书、MCP handshake）。结论随产品版本会变；以当次实测为准。
-
-## 仓库定位
-
-偏 **证据驱动的逆向笔记**，结构刻意做薄（可对照作者另一仓库 `llm-api-protocols` 的 Layer0/1/2，但本仓尚未拆那么细）。后续若材料变厚，可再升成 `docs/` 手册。
-
-捕获窗口：2026-09-24（Asia/Shanghai）。
+英文标签：`agent sandbox teardown` · `runtime anatomy` · `observational reverse engineering`  
+中文：豆包工作 · Agent 云沙箱运行时拆解

@@ -20,3 +20,5 @@
 ## 下一轮计划（动态）
 
 在已有拼图上补：会话目录结构、热池借还、nginx 对外暴露、MCP 过滤清单、办公版开关、文件进出、平台代码指纹；并穿插更「基建工程师」视角的多样追问（镜像构建、可观测性、多租户隔离等）。
+
+| R5 | A–G：会话结构、热池、对外暴露、MCP 过滤、office、文件 IO、代码指纹 | 双目录 chats + agent_mode；standby/cold；noVNC 全链路；内置 Sandbox MCP；创作画布 CLI 方案名；Go 模块 `code.byted.org/flow/*` |

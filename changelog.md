@@ -13,3 +13,4 @@
 - **R6（H–N）**：Sandbox 工具全表与真实调用；三控制通道；AIO/多 CLI；可观测空洞；镜像 v1.14.10 与预装摘要；上传默认 `/tmp`；standby 跳过项与 PROFILE=`all|ci`。
 - 按调研评审：补 `docs/comparables.md`、`evidence/2026-09-24` 打码摘要；收紧部分措辞强度。
 - 新增 `docs/preinstall.md`；README 补「观测背景」，把 `IMAGE_VERSION` 说成人话。
+- 按博客工坊文风清单：主题文改为完整中文句；去掉轮次字母代号；补全残路径；预装独立成篇。

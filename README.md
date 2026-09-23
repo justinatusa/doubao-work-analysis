@@ -6,9 +6,24 @@
 [![not-official](https://img.shields.io/badge/official-not%20affiliated-lightgrey)](docs/method.md)
 [![license](https://img.shields.io/badge/license-notes%20with%20attribution-informational)](LICENSE)
 
-> 把「Agent 背后那台临时云电脑」拆清楚：隔离怎么做、网怎么出、工具怎么控桌面——按主题落成可跳读的证据笔记。
+> 这份笔记回答的是：豆包工作背后那台「临时云电脑」里，隔离怎么做、网络怎么出、Agent 用哪些工具控机器。  
+> 材料来自 2026-09-24 的一场现场取证（在产品里让 Agent 自己查配置），不是官方文档。
 
-Source of Truth：[`docs/`](docs/)。当次镜像指纹：`IMAGE_VERSION=1.14.10`（2026-09-24）。
+**怎么读：** 先看下面的「观测背景」和 TL;DR，再进 [`docs/architecture.md`](docs/architecture.md)。  
+**正文都在 [`docs/`](docs/)**，本页只做入口。
+
+---
+
+## 观测背景（避免黑话）
+
+| 字段 | 含义 |
+|------|------|
+| 观测日期 | 2026-09-24（Asia/Shanghai） |
+| 产品 | 豆包工作（Doubao Work）里的 Agent 沙箱 |
+| `IMAGE_VERSION=1.14.10` | **当次沙箱镜像的构建号**。它出现在环境变量和 `sandbox_get_context` 的回报里。它 **不是** Ubuntu 版本，也 **不是** 豆包 App 商店版本。以后镜像升级，预装列表可能变。 |
+| 方法 | 在对话里让 Agent 跑命令、读配置；我们把结果按主题写进 `docs/` |
+
+图例与局限见 [`docs/method.md`](docs/method.md)。
 
 ---
 
@@ -16,37 +31,23 @@ Source of Truth：[`docs/`](docs/)。当次镜像指纹：`IMAGE_VERSION=1.14.10
 
 | 问题 | 回答 |
 |------|------|
-| 研究什么？ | 闭源 Doubao Work 的 Agent **云沙箱 / 运行时**：隔离、出口、MCP 与桌面控制、持久化、产品指纹 |
-| 怎么得到的？ | 在产品内让 Agent **现场取证**，再人工合成进主题文档 |
-| 仓的目标？ | 给工程师一份 **按主题跳读的证据笔记**（可版本化、可复核） |
-| 不是什么？ | 不是官方文档，不是漏洞利用手册，不是聊天记录仓库，不是 Seed 模型论文复现 |
+| 研究什么？ | 闭源 Doubao Work 的 Agent 云沙箱：谁在算、网怎么出、工具怎么控桌面、磁盘怎么留、镜像里预装了什么 |
+| 怎么得到的？ | 产品内现场取证，再整理成主题文档 |
+| 仓的目标？ | 给工程师一份可以按主题跳读、能核对出处的观察笔记 |
+| 不是什么？ | 不是官方文档，不是漏洞教程，不是聊天记录原文仓库 |
 
-体裁上接近业界的 *agent sandbox / runtime teardown*（观察型，非攻击型）。
-
----
-
-## 怎么读
-
-**最短路径：** [`architecture`](docs/architecture.md) → [`method`](docs/method.md) → 你关心的主题文。
-
-```text
-README（入口）
-  → docs/architecture.md   总图
-  → docs/method.md         实测 / 推断 / 未测到
-  → docs/<主题>.md
-  → docs/open-questions.md
-  → changelog.md           观测时间线
-```
+体裁接近业界常说的 *agent sandbox teardown*（观察型拆解）。
 
 ---
 
 ## TL;DR
 
-1. **形态**：不是纯聊天框，而是 Agent + 一台带桌面的临时 Linux 云电脑（火山函数算力上的 microVM）。  
-2. **隔离与出口**：强隔离沙箱；出网走受控代理（技术站可去、许多消费站不可）；家目录可跨会话保留。  
-3. **怎么控电脑**：模型主要走浏览器自动化；平台另有签名的「代码/文件面」和「整桌键鼠面」——三通道并存。
+1. **形态**：豆包工作不只是聊天框，还会给 Agent 一台带桌面的临时 Linux 云电脑（跑在火山函数算力上的微虚拟机里）。  
+2. **隔离与网络**：沙箱隔离较强；出网要经过平台代理，能上不少技术站，常见视频/搜索站往往上不去；用户家目录可以跨会话留下来。  
+3. **怎么操作电脑**：模型主要用浏览器自动化工具；平台还有需要签名才能调的「改文件/跑命令」和「整桌键鼠」能力。三条路并存。  
+4. **出厂环境**：镜像里预装了多版本 Python/Node、桌面、Chrome、大量开发与自动化库。细节见 [`docs/preinstall.md`](docs/preinstall.md)。
 
-专有名词与组件表见 [`docs/architecture.md`](docs/architecture.md) 与各主题文。
+组件名词与总图见 [`docs/architecture.md`](docs/architecture.md)。
 
 ---
 
@@ -57,47 +58,48 @@ flowchart TB
   U[用户] --> G[外层网关]
   G --> N[nginx]
   N --> D[桌面]
-  N --> B[浏览器 CDP]
-  N --> M[MCP]
+  N --> B[浏览器]
+  N --> M[MCP 工具]
   N --> V[平台 VM API]
   N --> P[出网代理]
 ```
 
-完整图与组件索引 → [`docs/architecture.md`](docs/architecture.md)
+完整说明：[`docs/architecture.md`](docs/architecture.md)
 
 ---
 
-## 目录
+## 文档目录
 
 | 文档 | 内容 |
 |------|------|
 | [docs/method.md](docs/method.md) | 方法、图例、局限 |
-| [docs/architecture.md](docs/architecture.md) | 架构总图 + 索引 |
-| [docs/compute.md](docs/compute.md) | 计算 / 沙箱 / 配额 / 镜像 |
-| [docs/network.md](docs/network.md) | 出口 / DNS / NAT / 包源 |
-| [docs/agent-surface.md](docs/agent-surface.md) | 三通道、Sandbox MCP、会话目录 |
-| [docs/desktop-expose.md](docs/desktop-expose.md) | noVNC / nginx / CDP 对外 |
-| [docs/persistence-io.md](docs/persistence-io.md) | 热池、上传下载、office 版 |
-| [docs/product-fingerprint.md](docs/product-fingerprint.md) | AIO、创作画布、内部模块、预装 |
-| [docs/observability.md](docs/observability.md) | 日志、OTEL、审计 |
-| [docs/comparables.md](docs/comparables.md) | 与业界沙箱对照 |
-| [docs/open-questions.md](docs/open-questions.md) | 未决问题 |
-| [changelog.md](changelog.md) | 观测日志 |
+| [docs/architecture.md](docs/architecture.md) | 架构总图 |
+| [docs/preinstall.md](docs/preinstall.md) | **出厂预装了什么**（含镜像版本说明） |
+| [docs/compute.md](docs/compute.md) | 计算资源、沙箱、配额 |
+| [docs/network.md](docs/network.md) | 出网、DNS、包源 |
+| [docs/agent-surface.md](docs/agent-surface.md) | 工具通道、MCP、会话目录 |
+| [docs/desktop-expose.md](docs/desktop-expose.md) | 桌面与端口如何对外 |
+| [docs/persistence-io.md](docs/persistence-io.md) | 热池、上传下载 |
+| [docs/product-fingerprint.md](docs/product-fingerprint.md) | 产品与内部模块名 |
+| [docs/observability.md](docs/observability.md) | 日志与可观测 |
+| [docs/comparables.md](docs/comparables.md) | 和其他家沙箱对照 |
+| [docs/open-questions.md](docs/open-questions.md) | 还没查清的问题 |
+| [changelog.md](changelog.md) | 哪天补了什么 |
+| [evidence/2026-09-24/](evidence/2026-09-24/) | 打码后的证据摘要 |
 
 ---
 
 ## 仓库约定
 
-- **Source of Truth（SoT）= `docs/`**：新证据合并进主题文，不按聊天轮次建文件。  
-- **`changelog.md`**：只记「哪天补了什么」。  
-- 派生对外长文（若需要）再从 `docs/` 抽出；当前 **暂无单独对外长文**。
-- 打码摘录见 [`evidence/2026-09-24/`](evidence/2026-09-24/)（重构摘要，非全量终端日志）。
+- 唯一正文来源是 `docs/`：新发现写进对应主题，不要按聊天轮次建文件。  
+- `changelog.md` 只记时间线。  
+- 目前没有单独对外长文；入口就是本 README。  
+- 打码摘录在 `evidence/`（从会话结果重构，不是完整终端日志）。
 
 ---
 
 ## 免责声明
 
-独立观察笔记，与 ByteDance / Volcengine / Doubao **无隶属关系**。  
-可分享，需保留署名；禁止用于未授权访问、攻击或绕过安全控制。详见 [`LICENSE`](LICENSE)。
-
-观测日期：2026-09-24（Asia/Shanghai）· 镜像：`IMAGE_VERSION=1.14.10`
+这是独立观察笔记，与 ByteDance、Volcengine、Doubao 没有隶属关系。  
+可以分享，请保留署名，并写上观测日期和 `IMAGE_VERSION`。  
+不要用来做未授权访问或绕过安全控制。详见 [`LICENSE`](LICENSE)。

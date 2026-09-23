@@ -2,7 +2,7 @@
 
 ## 日志（实测）
 
-日志目录是 `/var/log/gem/`。nginx、python-server、gost、browser-supervisor、VNC 等组件各有日志文件。  
+日志目录是 `/var/log/gem/`（**gem** = 镜像内平台运行时目录前缀，见 [architecture.md](architecture.md) 词表）。nginx、python-server、gost、browser-supervisor、VNC 等组件各有日志文件。  
 这些日志写在当前实例本地可写盘上。**实例回收后，容器里的这份日志就没了。**
 
 ## OpenTelemetry（实测）

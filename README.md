@@ -23,6 +23,10 @@
 | [notes/01-compute-sandbox.md](notes/01-compute-sandbox.md) | 计算 / 沙箱 / 挂载 / 配额 |
 | [notes/02-network-egress.md](notes/02-network-egress.md) | 出口代理 / DNS / NAT / 包源 |
 | [notes/03-agent-runtime.md](notes/03-agent-runtime.md) | MCP / Chrome / hijack / 会话 |
+| [notes/04-agent-surface.md](notes/04-agent-surface.md) | MCP / ComputerUse / 会话目录 |
+| [notes/05-desktop-expose.md](notes/05-desktop-expose.md) | noVNC / nginx / CDP 对外 |
+| [notes/06-persistence-io.md](notes/06-persistence-io.md) | 热池同步 / 上传下载 |
+| [notes/07-product-fingerprint.md](notes/07-product-fingerprint.md) | 创作画布 CLI / 内部模块 |
 | [notes/open-questions.md](notes/open-questions.md) | 尚未坐实的洞 |
 
 ## 方法（简述）

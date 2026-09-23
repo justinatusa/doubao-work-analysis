@@ -1,6 +1,7 @@
 # 架构总图
 
-> 基于 2026-09-24 观测拼接；细节见各主题文。镜像指纹：`IMAGE_VERSION=1.14.10`。
+下面这张图，是把 **2026-09-24** 当天在沙箱里看到的组件串起来的总览。细节在各主题文。  
+当时沙箱通过环境变量 `IMAGE_VERSION` 自报的镜像版本是 **1.14.10**（这是镜像构建号，不是 Ubuntu 版本，也不是豆包 App 版本）。
 
 ```mermaid
 flowchart TB
@@ -40,12 +41,12 @@ flowchart TB
 |----|------|------|
 | 方法 | 实测 / 推断 / 未测到 | [method.md](method.md) |
 | 预装 | 出厂软件与镜像构建号 | [preinstall.md](preinstall.md) |
-| 计算 | Kata、Nydus、cgroup、hpvs | [compute.md](compute.md) |
-| 网络 | VortexIP、白名单、包源 | [network.md](network.md) |
-| Agent | 三通道、Sandbox MCP、会话目录 | [agent-surface.md](agent-surface.md) |
-| 暴露 | noVNC、CDP、信任内网 nginx | [desktop-expose.md](desktop-expose.md) |
-| 持久化 | standby、upload/download | [persistence-io.md](persistence-io.md) |
-| 产品指纹 | AIO、创作画布、Go 模块 | [product-fingerprint.md](product-fingerprint.md) |
-| 可观测 | gem 日志、OTEL 空洞 | [observability.md](observability.md) |
-| 对照 | 与 AgentCore / Managed Agents 并排 | [comparables.md](comparables.md) |
-| 未决 | 仍缺证据的项 | [open-questions.md](open-questions.md) |
+| 计算 | Kata、Nydus、配额、挂载 | [compute.md](compute.md) |
+| 网络 | 出口代理、DNS、包源 | [network.md](network.md) |
+| Agent | 三条工具通道、MCP、会话目录 | [agent-surface.md](agent-surface.md) |
+| 暴露 | noVNC、CDP、沙箱内 nginx | [desktop-expose.md](desktop-expose.md) |
+| 持久化 | 热池、上传下载 | [persistence-io.md](persistence-io.md) |
+| 产品指纹 | AIO、创作画布、内部模块名 | [product-fingerprint.md](product-fingerprint.md) |
+| 可观测 | 日志、OpenTelemetry | [observability.md](observability.md) |
+| 对照 | 与其他家沙箱并排 | [comparables.md](comparables.md) |
+| 未决 | 仍缺证据的问题 | [open-questions.md](open-questions.md) |

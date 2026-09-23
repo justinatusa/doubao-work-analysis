@@ -12,7 +12,7 @@
 dumb-init（1 号进程）
   └─ runtime-agent  /opt/bytefaas/run.sh
        └─ /runtime/mcp_vm_server/entrypoint.sh
-            └─ supervisord（配置在 /opt/gem/）
+            └─ supervisord（配置在 /opt/gem/；**gem** = 镜像内平台运行时目录前缀，不是独立产品名）
                  └─ nginx、Chrome、MCP、VNC 等服务
 ```
 
@@ -48,7 +48,7 @@ dumb-init（1 号进程）
 |--------|------|------|
 | `/` | overlay，约 10GB | 本实例本地可写，销毁即没 |
 | `/tmp/user` | 独立磁盘上的 ext4，约 10GB | 本实例临时盘 |
-| `/home/user` | hpvs 共享存储 | **可以跨会话保留**；下面有 `Doubao/chats/` 等目录 |
+| `/home/user` | **hpvs** 共享存储（观测到的持久卷文件系统名） | **可以跨会话保留**：关掉对话后，家目录里的文件往往还在；下面有 `Doubao/chats/` 等目录 |
 | `/sandboxdata/…` | virtiofs | 持久卷（当次几乎是空的） |
 | 浏览器 Cookie 相关路径 | virtiofs | Cookie 可持久 |
 | `/opt/tiger/bytefaas/binary` | 只读 virtiofs | 平台注入的二进制 |

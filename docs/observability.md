@@ -1,20 +1,21 @@
 # 可观测与审计
 
-## 日志（实测，K）
+## 日志（实测）
 
-- `LOG_DIR=/var/log/gem/`：nginx-access、python-server、gost、browser-supervisor、tigervnc 等。
-- 落在本实例可写层 → **实例销毁即没**。
+日志目录是 `/var/log/gem/`。nginx、python-server、gost、browser-supervisor、VNC 等组件各有日志文件。  
+这些日志写在当前实例本地可写盘上。**实例回收后，容器里的这份日志就没了。**
 
-## OpenTelemetry（实测，K）
+## OpenTelemetry（实测）
 
-- `OTEL_SDK_DISABLED=false`；Python 自动埋点（`OTEL_PYTHON_DISABLED_INSTRUMENTATIONS=redis`）。
-- OTLP 导出端点环境变量 **为空**；`/otel-auto-instrumentation-python` **不存在** → 导出目标 **测不到**。
-- 无 otel/jaeger/fluent/prom **独立 sidecar** 进程。
+SDK 没有被关掉，Python 侧也有自动埋点相关配置。  
+但是：指向哪里导出的端点变量当次是空的，自动埋点目录在容器里也不存在。  
+因此 **日志和指标最终送到哪：未测到**。  
+进程列表里也没有看到独立的 otel / jaeger / fluent / prometheus 采集边车。
 
 ## 审计（实测）
 
-- `vm_runtime_hook audit-skill-permissions`（entrypoint 中 best-effort 后台）。
+启动流程里会 best-effort 跑技能权限审计一类钩子。
 
-## trajectory 出沙箱（未测到）
+## 对话轨迹会不会被送出沙箱（未测到）
 
-容器内脚本未见上传 `trajectory.jsonl` 的逻辑 → **回收应在平台侧**。
+在容器脚本里没有搜到上传 `trajectory.jsonl` 的逻辑。更可能由平台侧回收，但本仓没有直接证据。

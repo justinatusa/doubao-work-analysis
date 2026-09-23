@@ -1,85 +1,74 @@
 # Doubao Work Analysis
 
+**豆包工作云沙箱运行时 · 观察笔记（非官方）**
+
 [![status](https://img.shields.io/badge/status-observational-blue)](docs/method.md)
 [![not-official](https://img.shields.io/badge/official-not%20affiliated-lightgrey)](docs/method.md)
 [![captured](https://img.shields.io/badge/capture-2026--09--24-green)](changelog.md)
-[![license](https://img.shields.io/badge/license-for%20notes-informational)](#免责声明)
+[![license](https://img.shields.io/badge/license-notes%20with%20attribution-informational)](LICENSE)
 
-> 豆包工作（**Doubao Work**）Agent **云沙箱运行时** 的观察型拆解笔记。  
-> Source of Truth 在 [`docs/`](docs/) — 像 Obsidian 知识库一样按主题阅读。
+> 把「Agent 背后那台临时云电脑」拆清楚：隔离怎么做、网怎么出、工具怎么控桌面——按主题落成可跳读的证据笔记。
 
-**不是**字节跳动 / 火山引擎官方文档。结论随镜像版本变化；当次指纹：`IMAGE_VERSION=1.14.10`。
+Source of Truth：[`docs/`](docs/)。当次镜像指纹：`IMAGE_VERSION=1.14.10`（2026-09-24）。
 
 ---
 
-## 这是什么 / 目标
+## 这是什么
 
 | 问题 | 回答 |
 |------|------|
-| 研究什么？ | 闭源「Agent + 临时云电脑」运行时：隔离、出口、MCP/工具面、桌面暴露、持久化、产品指纹 |
-| 怎么得到的？ | 在产品内让 Agent **现场取证**（命令 / 配置 / 网络），再人工合成笔记 |
-| 仓的目标？ | 把诱导出的证据 **分类落盘**，方便自己回顾，也方便他人按主题跳读 |
-| 不是什么？ | 不是漏洞利用手册，不是 Seed 模型论文复现，不是聊天记录仓库 |
+| 研究什么？ | 闭源 Doubao Work 的 Agent **云沙箱 / 运行时**：隔离、出口、MCP 与桌面控制、持久化、产品指纹 |
+| 怎么得到的？ | 在产品内让 Agent **现场取证**，再人工合成进主题文档 |
+| 仓的目标？ | 给工程师一份 **按主题跳读的证据笔记**（可版本化、可复核） |
+| 不是什么？ | 不是官方文档，不是漏洞利用手册，不是聊天记录仓库，不是 Seed 模型论文复现 |
 
-相近体裁（英文）：*agent sandbox teardown* · *runtime anatomy* · *observational reverse engineering*。
+体裁上接近业界的 *agent sandbox / runtime teardown*（观察型，非攻击型）。
 
 ---
 
-## 怎么读（建议路径）
+## 怎么读
+
+**最短路径：** [`architecture`](docs/architecture.md) → [`method`](docs/method.md) → 你关心的主题文。
 
 ```text
-README（你在这里）
-  → docs/architecture.md     一张总图
-  → docs/method.md           图例：实测 / 推断 / 未测到
-  → 按兴趣点进主题文（下表）
-  → docs/open-questions.md   还缺什么
-  → changelog.md             哪天补了什么
+README（入口）
+  → docs/architecture.md   总图
+  → docs/method.md         实测 / 推断 / 未测到
+  → docs/<主题>.md
+  → docs/open-questions.md
+  → changelog.md           观测时间线
 ```
-
-深挖只进 `docs/`；不要按「第几轮聊天」找文件。
 
 ---
 
 ## TL;DR
 
-1. **形态**：Agent + Kata microVM 临时 Linux 桌面（noVNC + Chrome），跑在火山 **ByteFaaS / veFaaS**。  
-2. **计算**：约 2 vCPU / 4 GiB；`/home/user` 经 **hpvs** 可跨会话；standby 热池与 cold 借出。  
-3. **网络**：本机代理 → **VortexIP** → 共享 NAT；技术站白名单，常见消费站黑洞；包源公开镜像或透明缓存。  
-4. **Agent 面**：**三条通道** — 模型直调 browser MCP（CDP）；平台签名的 CC 面与 ComputerUse GUI 面；另有内置 Sandbox MCP 工具族。  
-5. **身份**：飞书 / Lark 相关域名本地 MITM；鉴权回 `mcp.doubaocdn.com` 管控面。  
-6. **产品指纹**：内部代号 **AIO**；方案名《豆包创作画布 CLI · 云沙箱侧技术方案》；集成 Codex / OpenCode / code-server 痕迹。
+1. **形态**：不是纯聊天框，而是 Agent + 一台带桌面的临时 Linux 云电脑（火山函数算力上的 microVM）。  
+2. **隔离与出口**：强隔离沙箱；出网走受控代理（技术站可去、许多消费站不可）；家目录可跨会话保留。  
+3. **怎么控电脑**：模型主要走浏览器自动化；平台另有签名的「代码/文件面」和「整桌键鼠面」——三通道并存。
+
+专有名词与组件表见 [`docs/architecture.md`](docs/architecture.md) 与各主题文。
 
 ---
 
 ## 架构（速览）
 
 ```mermaid
-flowchart LR
+flowchart TB
   U[用户] --> G[外层网关]
-  G --> N[nginx :8080]
-  N --> D[桌面 noVNC]
-  N --> C[CDP Chrome]
-  N --> M[MCP hub]
-  M --> B[browser MCP]
-  N --> V[mcp_vm_server]
-  V --> X[CC / ComputerUse]
-  subgraph VM[Kata + ByteFaaS]
-    N
-    D
-    C
-    M
-    B
-    V
-  end
-  VM --> P[代理链]
-  P --> E[VortexIP / 公网]
+  G --> N[nginx]
+  N --> D[桌面]
+  N --> B[浏览器 CDP]
+  N --> M[MCP]
+  N --> V[平台 VM API]
+  N --> P[出网代理]
 ```
 
-完整图与组件表 → [`docs/architecture.md`](docs/architecture.md)
+完整图与组件索引 → [`docs/architecture.md`](docs/architecture.md)
 
 ---
 
-## 目录（MOC）
+## 目录
 
 | 文档 | 内容 |
 |------|------|
@@ -89,32 +78,25 @@ flowchart LR
 | [docs/network.md](docs/network.md) | 出口 / DNS / NAT / 包源 |
 | [docs/agent-surface.md](docs/agent-surface.md) | 三通道、Sandbox MCP、会话目录 |
 | [docs/desktop-expose.md](docs/desktop-expose.md) | noVNC / nginx / CDP 对外 |
-| [docs/persistence-io.md](docs/persistence-io.md) | standby、上传下载、office 版 |
-| [docs/product-fingerprint.md](docs/product-fingerprint.md) | AIO、创作画布、Go 模块、预装 |
+| [docs/persistence-io.md](docs/persistence-io.md) | 热池、上传下载、office 版 |
+| [docs/product-fingerprint.md](docs/product-fingerprint.md) | AIO、创作画布、内部模块、预装 |
 | [docs/observability.md](docs/observability.md) | 日志、OTEL、审计 |
 | [docs/open-questions.md](docs/open-questions.md) | 未决问题 |
 | [changelog.md](changelog.md) | 观测日志 |
-| [publish/](publish/) | 对外长文占位（可选） |
-| [evidence/](evidence/) | 可选打码摘录 |
 
 ---
 
 ## 仓库约定
 
-- **SoT = `docs/`**：新证据合并进主题文，不新建「第 N 轮.md」。  
-- **`changelog.md`**：只记时间线事件。  
-- **`publish/`**：派生对外稿，不写第二套事实。  
-- **`evidence/`**：原始摘录（打码），不叙事。
+- **Source of Truth（SoT）= `docs/`**：新证据合并进主题文，不按聊天轮次建文件。  
+- **`changelog.md`**：只记「哪天补了什么」。  
+- 派生对外长文（若需要）再从 `docs/` 抽出；当前 **暂无单独对外长文**。
 
 ---
 
 ## 免责声明
 
-独立观察笔记，与 ByteDance / Volcengine / Doubao 无隶属关系。  
-禁止将本仓内容用于未授权访问、攻击或绕过安全控制。  
-引用请注明观测日期与镜像版本。
+独立观察笔记，与 ByteDance / Volcengine / Doubao **无隶属关系**。  
+可分享，需保留署名；禁止用于未授权访问、攻击或绕过安全控制。详见 [`LICENSE`](LICENSE)。
 
-## 链接
-
-- 仓库：https://github.com/justinatusa/doubao-work-analysis  
-- 捕获窗口：2026-09-24（Asia/Shanghai）
+观测日期：2026-09-24（Asia/Shanghai）· 镜像：`IMAGE_VERSION=1.14.10`

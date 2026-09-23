@@ -4,7 +4,6 @@
 
 [![status](https://img.shields.io/badge/status-observational-blue)](docs/method.md)
 [![not-official](https://img.shields.io/badge/official-not%20affiliated-lightgrey)](docs/method.md)
-[![captured](https://img.shields.io/badge/capture-2026--09--24-green)](changelog.md)
 [![license](https://img.shields.io/badge/license-notes%20with%20attribution-informational)](LICENSE)
 
 > 把「Agent 背后那台临时云电脑」拆清楚：隔离怎么做、网怎么出、工具怎么控桌面——按主题落成可跳读的证据笔记。

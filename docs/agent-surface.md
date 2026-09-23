@@ -19,7 +19,7 @@
 
 动作别名见：`MOUSE_DOWN/UP`、`LEFT_DOUBLE`、`RIGHT_CLICK`、`DRAG_TO` 等。  
 底层旁证：PyAutoGUI、opencv-headless、Pillow；`mcp_vm_server` 含 Playwright 协议串与 X11 符号。  
-**场景调度策略在平台侧，容器内测不到。**
+**谁在何种产品场景选用哪条通道：容器内未测到调度规则**（推断在平台侧）。
 
 ## 浏览器运行时（实测）
 
@@ -62,4 +62,4 @@ FastMCP「Sandbox MCP Tools」**v2.14.7**（`app/mcp/`）。经 `POST :8091/mcp`
 
 ## Security review（实测阴性）
 
-审查文案仅见于会话产物；容器内无策略落点；无法稳定复现拦截 → **更像容器外执行通道 / 启发式**。
+审查文案仅见于会话产物；容器内无策略落点；无法稳定复现拦截 → **未测到容器内策略落点**；拦截位置与判定方式属推断（更可能在容器外执行通道）。

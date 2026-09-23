@@ -46,4 +46,5 @@ flowchart TB
 | 持久化 | standby、upload/download | [persistence-io.md](persistence-io.md) |
 | 产品指纹 | AIO、创作画布、Go 模块 | [product-fingerprint.md](product-fingerprint.md) |
 | 可观测 | gem 日志、OTEL 空洞 | [observability.md](observability.md) |
+| 对照 | 与 AgentCore / Managed Agents 并排 | [comparables.md](comparables.md) |
 | 未决 | 仍缺证据的项 | [open-questions.md](open-questions.md) |

@@ -39,6 +39,7 @@ flowchart TB
 | 层 | 要点 | 详见 |
 |----|------|------|
 | 方法 | 实测 / 推断 / 未测到 | [method.md](method.md) |
+| 预装 | 出厂软件与镜像构建号 | [preinstall.md](preinstall.md) |
 | 计算 | Kata、Nydus、cgroup、hpvs | [compute.md](compute.md) |
 | 网络 | VortexIP、白名单、包源 | [network.md](network.md) |
 | Agent | 三通道、Sandbox MCP、会话目录 | [agent-surface.md](agent-surface.md) |

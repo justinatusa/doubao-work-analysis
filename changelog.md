@@ -1,18 +1,14 @@
 # Changelog（观测日志）
 
-详细结论写在 `docs/`；这里只记「哪天补了什么」。
+详细结论写在主文与附录；这里只记「哪天补了什么」。
 
 ## 2026-09-24
 
 - 初建；方法定为沙箱内现场取证。
 - 计算层：ByteFaaS/veFaaS、Kata+Nydus、~2vCPU/4GiB、hpvs home。
 - 网络层：VortexIP、共享 NAT、DNS/白名单、包源透明缓存。
-- Agent/桌面：自研 CDP browser MCP、noVNC、飞书 hijack MITM。
-- R5（A–G）：双会话目录、standby/cold、内置 Sandbox MCP 线索、创作画布 CLI、Go 模块指纹。
-- SoT 改为 Obsidian 式 `docs/` + `changelog` + `publish/`。
-- **R6（H–N）**：Sandbox 工具全表与真实调用；三控制通道；AIO/多 CLI；可观测空洞；镜像 v1.14.10 与预装摘要；上传默认 `/tmp`；standby 跳过项与 PROFILE=`all|ci`。
-- 按调研评审：补 `docs/comparables.md`、`evidence/2026-09-24` 打码摘要；收紧部分措辞强度。
-- 新增 `docs/preinstall.md`；README 补「观测背景」，把 `IMAGE_VERSION` 说成人话。
-- 按博客工坊文风清单：主题文改为完整中文句；去掉轮次字母代号；补全残路径；预装独立成篇。
-- 按调研可读性复审：architecture 首次释义词表；CC/MCP/hpvs/gem/AIO/Seed 各补人话；Security review 拆成完整句。
-- 架构图从 mermaid 改为仓内 SVG（`docs/assets/`），并附文字版，避免 GitHub 前端渲染失败。
+- Agent/桌面：自研 CDP browser MCP、noVNC、飞书 hijack。
+- 补全：双会话目录、standby/cold、Sandbox MCP 工具表与真实调用、三控制通道、AIO/多 CLI、可观测空洞、上传默认 `/tmp`、PROFILE=`all|ci`。
+- 补 `evidence/2026-09-24` 打码摘要；收紧部分措辞强度。
+- 新增预装与 `IMAGE_VERSION` 人话说明；文风改为完整中文句；架构图改为仓内 SVG。
+- **结构重排：** 原 12 篇薄主题文合并为通读主文 [`docs/sandbox-outside-in.md`](docs/sandbox-outside-in.md)；软件包与证据/对照迁入附录；README 缩短为入口；删除 `publish/` 与旧分篇空壳。R6 软件清单（versions / Python / pip-3.12 全表 / npm 空 / `/opt` 体积 / deb 前半约 953）并入附录；deb 后半未导出，正文如实标注不完整。

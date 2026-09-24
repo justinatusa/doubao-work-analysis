@@ -16,37 +16,18 @@
 | **gem** | 观测到的沙箱镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`），不是独立对外产品名 |
 | **hpvs** | 观测到的持久卷文件系统名；对用户含义：关对话后，家目录里的文件往往还在 |
 
-```mermaid
-flowchart TB
-  User[用户浏览器]
-  GW[外层网关 JWT 鉴权]
-  NGX[nginx :8080 信任内网]
-  VNC[noVNC / websocat / Xvnc]
-  CDP[Chrome CDP :9222]
-  HUB[MCP hub :8091]
-  BR[browser MCP :8100]
-  VM[mcp_vm_server :10000]
-  HOOK[vm_runtime_hook :10080]
-  SUP[supervisord /opt/gem]
-  KATA[Kata microVM + Nydus<br/>ByteFaaS / veFaaS]
-  PROXY[tinyproxy / gost / lark_hijack]
-  VX[VortexIP 出口]
-  NET[公网共享 NAT]
+![豆包工作 Agent 沙箱架构总图](assets/architecture.svg)
 
-  User --> GW --> NGX
-  NGX --> VNC
-  NGX --> CDP
-  NGX --> HUB
-  NGX --> VM
-  NGX --> HOOK
-  HUB --> BR
-  BR --> CDP
-  SUP --> NGX
-  SUP --> CDP
-  SUP --> HUB
-  KATA --> SUP
-  SUP --> PROXY --> VX --> NET
-```
+### 图的文字版（从外到内）
+
+1. 用户浏览器先到**外层网关**，在那里验证身份（JWT）。
+2. 流量进入沙箱后先到监听 8080 端口的 **nginx**。nginx 按信任内网配置，不再重复验票。
+3. nginx 把请求分给五类服务：桌面（noVNC / Xvnc）、Chrome 的 CDP 调试口（9222）、MCP hub（8091）、平台 VM API（10000，含 CC 文件/命令通道与 ComputerUse 键鼠通道，需要平台签名）、运行时钩子（10080）。
+4. MCP hub 下挂着 **browser MCP**（8100），它用 CDP 协议遥控 Chrome，模型可以直接调用。
+5. 以上进程都由 **supervisord** 托管，配置在 `/opt/gem`。
+6. 沙箱出网先经过本地代理（tinyproxy、gost、飞书域名本地劫持），再经 **VortexIP** 平台出口到公网共享 NAT。
+7. 存储分两类：`/home/user` 在 hpvs 持久卷上，关对话后往往还在；根目录和 `/tmp/user` 是本实例本地盘，实例回收即消失。
+8. 整个沙箱是一台 Kata 微虚拟机，镜像用 Nydus 按需加载，跑在火山 ByteFaaS / veFaaS 函数算力上。
 
 ## 主组件索引
 

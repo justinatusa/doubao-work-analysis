@@ -1,6 +1,6 @@
 # sandbox_get_context（重构摘要）
 
-对应：[docs/agent-surface.md](../../docs/agent-surface.md)、[docs/compute.md](../../docs/compute.md)
+对应：[docs/agent-surface.md](../../docs/sandbox-outside-in.md)、[docs/compute.md](../../docs/sandbox-outside-in.md)
 
 ```text
 IMAGE_VERSION: 1.14.10

@@ -1,6 +1,6 @@
 # nginx location 摘要（重构）
 
-对应：[docs/desktop-expose.md](../../docs/desktop-expose.md)
+对应：[docs/desktop-expose.md](../../docs/sandbox-outside-in.md)
 
 ```text
 listen PUBLIC_PORT=8080

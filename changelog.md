@@ -15,3 +15,4 @@
 - 新增 `docs/preinstall.md`；README 补「观测背景」，把 `IMAGE_VERSION` 说成人话。
 - 按博客工坊文风清单：主题文改为完整中文句；去掉轮次字母代号；补全残路径；预装独立成篇。
 - 按调研可读性复审：architecture 首次释义词表；CC/MCP/hpvs/gem/AIO/Seed 各补人话；Security review 拆成完整句。
+- 架构图从 mermaid 改为仓内 SVG（`docs/assets/`），并附文字版，避免 GitHub 前端渲染失败。

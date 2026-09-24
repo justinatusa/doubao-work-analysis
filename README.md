@@ -53,16 +53,9 @@
 
 ## 架构（速览）
 
-```mermaid
-flowchart TB
-  U[用户] --> G[外层网关]
-  G --> N[nginx]
-  N --> D[桌面]
-  N --> B[浏览器]
-  N --> M[MCP 工具]
-  N --> V[平台 VM API]
-  N --> P[出网代理]
-```
+![架构速览：用户经外层网关进入沙箱内 nginx，再分到桌面、浏览器、MCP 工具和平台 VM API；出网走 VortexIP；家目录跨会话保留](docs/assets/overview.svg)
+
+用户先经过外层网关验证身份，再进入沙箱内的 nginx。nginx 把流量分给桌面、浏览器、MCP 工具和平台 VM API 四类服务。沙箱出网要经过本地代理和 VortexIP 平台出口；家目录放在可跨会话保留的持久卷上。
 
 完整说明：[`docs/architecture.md`](docs/architecture.md)
 

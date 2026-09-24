@@ -12,3 +12,5 @@
 - 补 `evidence/2026-09-24` 打码摘要；收紧部分措辞强度。
 - 新增预装与 `IMAGE_VERSION` 人话说明；文风改为完整中文句；架构图改为仓内 SVG。
 - **结构重排：** 原 12 篇薄主题文合并为通读主文 [`docs/sandbox-outside-in.md`](docs/sandbox-outside-in.md)；软件包与证据/对照迁入附录；README 缩短为入口；删除 `publish/` 与旧分篇空壳。R6 软件清单（versions / Python / pip-3.12 全表 / npm 空 / `/opt` 体积 / deb 前半约 953）并入附录；deb 后半未导出，正文如实标注不完整。
+- 按 humanizer-zh（技术文档模式）+ qu-ai-wei（保事实结构重写）+ stop-slop/deslop 可迁移规则润色主文：加节间转接、砍起跑式铺垫与口号收尾、保留全部路径/版本/口径标注；不用人设/小红书腔。
+

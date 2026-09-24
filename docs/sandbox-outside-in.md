@@ -22,7 +22,7 @@
 
 ## 沙箱是什么、跑在哪
 
-对话里的模型自称「豆包」；真正执行命令的地方，是一台临时分配的 Linux 沙箱。主机名形如 `vefaas-…-sandbox`。从 1 号进程往下看，最终进入火山 ByteFaaS / veFaaS（函数即服务算力）的运行脚本，说明这台机器挂在函数算力上，而不是长期租给用户的个人 VPS。（实测）
+对话侧自称豆包。命令在临时分配的 Linux 沙箱中执行。主机名形如 `vefaas-…-sandbox`。从 1 号进程往下看，最终进入火山 ByteFaaS / veFaaS（函数即服务算力）的运行脚本，说明这台机器挂在函数算力上。（实测）
 
 进程树可概括为：
 
@@ -36,7 +36,7 @@ dumb-init（1 号进程）
 
 gem 是镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`），不是独立对外产品名。当次还能看到函数名 `super-25-general-agent-efs`、修订号 `_FAAS_REVISION_NUMBER=4`，以及加密块 `CREATE_SANDBOX_PARAMS=ENCv1|…`（容器内解不开明文）。（实测）
 
-根文件系统挂载信息出现过 `kata-containers` 与 `nydus` 字样：隔离形态是 Kata Containers 微虚拟机（比普通容器进程隔离更硬一层），镜像层用 Nydus 做按需加载。根目录是大约 10GB 的 overlay 可写层；实例销毁后这一层一起消失。（实测）相对普通 Docker 进程隔离，Kata 更适合多租户 Agent 沙箱：邻居即使拿到同一宿主机，也不容易直接进你的用户态。（推断）
+根文件系统挂载信息出现过 `kata-containers` 与 `nydus` 字样：隔离形态是 Kata Containers 微虚拟机（比普通容器进程隔离更硬一层），镜像层用 Nydus 做按需加载。根目录是大约 10GB 的 overlay 可写层；实例销毁后这一层一起消失。（实测）相对普通 Docker 进程隔离，Kata 把隔离边界再抬一档：邻居即使拿到同一宿主机，也不容易直接进你的用户态。（推断）
 
 规格与配额当次为：
 
@@ -49,7 +49,7 @@ gem 是镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`）
 
 内存超限会被 cgroup 杀掉进程；CPU 超限通常被限流。supervisor 相关注释提到：Chrome 若陷入崩溃重试，可能很快写满可写层。（实测）
 
-内核线索：`uname` 回报类似 `6.6.95.bck.2-rc1-amd64`（Debian 风格内核包名），主机名带 `vefaas` 前缀；操作系统为 Ubuntu 22.04.5 LTS（`jammy`）。（实测，R6，同日同镜像）
+内核线索：`uname` 回报类似 `6.6.95.bck.2-rc1-amd64`（Debian 风格内核包名），主机名带 `vefaas` 前缀；操作系统为 Ubuntu 22.04.5 LTS（`jammy`）。（实测）
 
 超时相关环境变量当次见过：单次函数执行约 315 秒、等待 60 秒、关闭钩子 30 秒。用户关掉对话后实例闲置多久会被回收：容器内没有对应字段（未测到）。
 
@@ -59,11 +59,11 @@ gem 是镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`）
 
 ## 网络出口与代理白名单
 
-算力跑在火山引擎网络里；公网上看到的「来源 IP」往往是 VortexIP（平台侧出口代理）落地之后的地址——当次还落到过注册在阿里云 ASN 下的地址。计算层和出口层不是同一层，所以「像火山又像阿里」可以同时成立。（实测）
+算力跑在火山引擎网络里；公网上看到的「来源 IP」往往是 VortexIP（平台侧出口代理）落地之后的地址——当次还落到过注册在阿里云 ASN 下的地址。计算层与出口层分离，故 ASN / 品牌观感可以不一致。（实测）
 
 容器网卡是内网地址，默认网关形态符合 Kata 常见配置。容器内还跑着本地代理：tinyproxy（8118）、gost，以及 `lark_hijack_proxy`。浏览器流量也走本地代理。访问 GitHub 一类站点时，有可能被透明转到内网镜像地址（形如 `192.168.255.x`）。（实测）
 
-出网路径可概括为：容器内的 curl / Chrome → 本地 tinyproxy / gost / hijack → VortexIP（当次见过 cn-beijing2 一类域名）→ 公网落地 IP（多沙箱共享 NAT）。许多沙箱共用少数出口 IP，外部服务若按 IP 限流（例如未登录的 GitHub API），容易一人超限、大家一起倒霉。（实测）
+出网路径可概括为：容器内的 curl / Chrome → 本地 tinyproxy / gost / hijack → VortexIP（当次见过 cn-beijing2 一类域名）→ 公网落地 IP（多沙箱共享 NAT）。许多沙箱共用少数出口 IP；外部服务若按 IP 限流（例如未登录的 GitHub API），同一落地 IP 上的限流会波及共用该出口的其他沙箱。（实测）
 
 管控抽样（不是完整名单；出口 IP 会轮换）：
 
@@ -73,7 +73,7 @@ gem 是镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`）
 
 出网带宽硬上限在容器里未测到（更可能在网关侧）。
 
-飞书 / Lark 相关域名会被本机劫持组件接管，证书由沙箱本地 CA 签发，鉴权回平台管控面。这是沙箱内部的流量接管方式，本仓只作观察记录。（实测；样例见 [evidence/2026-09-24/05-hijack-domains-redacted.md](../evidence/2026-09-24/05-hijack-domains-redacted.md)）
+飞书 / Lark 相关域名会被本机劫持组件接管，证书由沙箱本地 CA 签发，鉴权回平台管控面。（实测；样例见 [evidence/2026-09-24/05-hijack-domains-redacted.md](../evidence/2026-09-24/05-hijack-domains-redacted.md)）
 
 包管理源：
 
@@ -83,15 +83,15 @@ gem 是镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`）
 | pip | 配置指向官方 PyPI | 经内网透明缓存网关再出门 |
 | 手动改回 npm 官方域名 | registry.npmjs.org | 同样会进透明代理 |
 
-响应头里能看到真实的 Cloudflare / Fastly / S3 痕迹，说明这是带缓存的转发，不是伪造包内容的假源。（实测）
+响应头指向真实的 Cloudflare / Fastly / S3，符合带缓存的透明转发。（实测）
 
-用户浏览器并不直连这些代理。对外真正对用户开放的，是下一节的 nginx 与外层网关。
+用户浏览器并不直连这些代理。对用户开放的入口，是下一节的 nginx 与外层网关。
 
 ---
 
 ## 桌面与对外接口
 
-沙箱内 nginx 没有配置 `auth_request`、token、jwt、secure_link 一类鉴权指令，按「已处在可信内网」工作。环境里能看到 `JWT_PUBLIC_KEY`（内容已打码），说明真正验用户身份的地方在沙箱外面的网关。沙箱对外服务端口是 8080（`PUBLIC_PORT`）；用户浏览器通常不直连这台 nginx，而是先经过外层网关。（实测）
+沙箱内 nginx 没有配置 `auth_request`、token、jwt、secure_link 一类鉴权指令，按「已处在可信内网」工作。环境里能看到 `JWT_PUBLIC_KEY`（内容已打码），说明验用户身份的地方在沙箱外面的网关。沙箱对外服务端口是 8080（`PUBLIC_PORT`）；用户浏览器通常不直连这台 nginx，而是先经过外层网关。（实测）
 
 流量进入沙箱后的分发：
 
@@ -107,7 +107,7 @@ gem 是镜像内平台运行时目录前缀（如 `/opt/gem`、`/var/log/gem`）
 
 一次性 token、签名 URL、链接多久失效：在 nginx 配置里没有找到（未测到；应在外层网关）。
 
-桌面软件栈：Xvnc（分辨率当次 1920×1080）、Openbox 窗口管理、fcitx5 中文输入。Chrome 大版本当次为 Chromium 146.0.7680.31，二进制在 `/opt/browser/chrome`（系统路径下没有 `google-chrome`）；User-Agent 含 `DoubaoWorkVM`。（实测，R6）
+桌面软件栈：Xvnc（分辨率当次 1920×1080）、Openbox 窗口管理、fcitx5 中文输入。Chrome 大版本当次为 Chromium 146.0.7680.31，二进制在 `/opt/browser/chrome`（系统路径下没有 `google-chrome`）；User-Agent 含 `DoubaoWorkVM`。（实测）
 
 架构总图：
 
@@ -159,9 +159,9 @@ CC 在这里指「平台签名的代码/文件操控通道」，不是桌面键�
 
 skill 扫描根目录由 `AIO_SKILLS_PATH` 决定。当次未设置时，`sandbox_load_skill` 得到的 skills 数量是 0。磁盘上另有 `/runtime/skills`、`/opt/skills` 等预装 skill 树——那是另一套体系，没有挂进当前这个 MCP 服务。镜像里有 skill 文件，不等于当前会话已经挂给模型用。（实测）
 
-对话产物里出现过类似 security review 的审查类提示文案。在沙箱文件系统里搜过对应策略文件或本地策略服务，没有找到落点；用多种「历史上像会挂」的命令写法复测时当次反而都通过，无法稳定复现拦截。更稳妥的结论是：未测到容器内的策略落点；真正拦在哪一层，推断更可能在容器外的执行通道上。
+对话产物里出现过类似 security review 的审查类提示文案。在沙箱文件系统里搜过对应策略文件或本地策略服务，没有找到落点；用多种「历史上像会挂」的命令写法复测时当次反而都通过，无法稳定复现拦截。未测到容器内的策略落点；拦在哪一层，推断更可能在容器外的执行通道上。
 
-产品与内部命名：字符串里出现过技术方案名《豆包创作画布 CLI · 云沙箱侧技术方案》；路径与变量反复出现 `agent_mode` 以及内部代号 AIO（`AIO_*` 一族环境变量，多 CLI 集成相关；对外产品名仍是豆包工作）。还能看到与 Codex、OpenCode、code-server 相关的数据目录或配置文件名，以及用户态 `~/.agents`、`~/.dws` 等目录。沙箱镜像并不只服务网页聊天，还叠了多种编程助手 / 编辑器运行时痕迹。它和字节 Seed 系列模型如何编排在一起，本仓未测到粘合细节。（实测 / 未测到）
+产品与内部命名：字符串里出现过技术方案名《豆包创作画布 CLI · 云沙箱侧技术方案》；路径与变量反复出现 `agent_mode` 以及内部代号 AIO（`AIO_*` 一族环境变量，多 CLI 集成相关；对外产品名仍是豆包工作）。还能看到与 Codex、OpenCode、code-server 相关的数据目录或配置文件名，以及用户态 `~/.agents`、`~/.dws` 等目录。除聊天侧外，镜像内还能看到 Codex / OpenCode / code-server 等相关路径与配置名（实测）。它和字节 Seed 系列模型如何编排在一起，本仓未测到粘合细节。
 
 内部工程坐标例子：Go 模块 `code.byted.org/flow/mcp_vm_server`、`…/vm_runtime_hook`；配置相关文件名 `lark_cli_config.go`、`hijack_host_cli.go`；平台相关域名 `certs.doubaocdn.com`、`mcp.doubaocdn.com`、`ext.volces.com` 等。（实测）
 
@@ -194,7 +194,7 @@ skill 扫描根目录由 `AIO_SKILLS_PATH` 决定。当次未设置时，`sandbo
 
 ## 预装软件概览
 
-下面数字均绑定 2026-09-24、`IMAGE_VERSION=1.14.10`（R6 贴回）。完整 pip 表与 deb 截断说明见 [附录：软件包](appendix-packages.md)。
+下面数字均绑定 2026-09-24、`IMAGE_VERSION=1.14.10`。完整 pip 表与 deb 截断说明见 [附录：软件包](appendix-packages.md)。
 
 从用途看，这套镜像更像给 Agent 准备的小型工作站：语言运行时齐全、桌面与浏览器可控、自动化库和开发工具开箱可用；平台侧的 nginx、代理与 supervisord 也在同一镜像里，但不等于都是「给你用的应用」。
 
@@ -214,7 +214,7 @@ skill 扫描根目录由 `AIO_SKILLS_PATH` 决定。当次未设置时，`sandbo
 
 | 类别 | 数量级 | 备注 |
 |------|--------|------|
-| deb 系统包 | 约 1275（`sandbox_get_context` / 包装管理摘要） | 本轮 R6 只拿到按字母序到 `libuv1` 的前半约 953 条；deb 清单不完整，后半（≥ libva）未导出 |
+| deb 系统包 | 约 1275（`sandbox_get_context` / 包装管理摘要） | 当次只拿到按字母序到 `libuv1` 的前半约 953 条；deb 清单不完整，后半（≥ libva）未导出 |
 | Python pip（3.12） | 282 | 完整清单在附录 |
 | npm 全局（用户态） | 空 | `npm ls -g --depth=0` 当次为空 |
 
@@ -240,7 +240,7 @@ Playwright 预装在盘上，但主控浏览器路径实测走自研 CDP bridge�
 | `/opt/gem` | 560K | `/opt/skills` | 124K |
 | `/opt/aio` | 48K | 其余 browser-ui / terminal / jupyter / nodejs 等 | 很小 |
 
-体积大户集中在 vm、python3.12、fnm：平台 VM 组件、默认 Python、多版本 Node。这和「工作站镜像」而不是「空函数容器」一致。
+体积大户集中在 vm、python3.12、fnm：平台 VM 组件、默认 Python、多版本 Node。
 
 ---
 

@@ -1,6 +1,6 @@
 # lark_hijack 域名样例（重构）
 
-对应：[docs/network.md](../../docs/network.md)、[docs/product-fingerprint.md](../../docs/product-fingerprint.md)
+对应：[docs/network.md](../../docs/sandbox-outside-in.md)、[docs/product-fingerprint.md](../../docs/sandbox-outside-in.md)
 
 说明：这是 **本机透明劫持 / 本地 CA** 的观测（组件 `lark_hijack_proxy`），用于说明流量如何被沙箱侧接管；**不是**教你对外实施中间人攻击。
 

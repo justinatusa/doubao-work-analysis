@@ -1,6 +1,6 @@
 # mount / cgroup（重构摘要）
 
-对应：[docs/compute.md](../../docs/compute.md)、[docs/persistence-io.md](../../docs/persistence-io.md)
+对应：[docs/compute.md](../../docs/sandbox-outside-in.md)、[docs/persistence-io.md](../../docs/sandbox-outside-in.md)
 
 ```text
 # mounts (selected)

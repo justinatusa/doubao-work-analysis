@@ -1,6 +1,6 @@
 # MCP tools（重构摘要）
 
-对应：[docs/agent-surface.md](../../docs/agent-surface.md)
+对应：[docs/agent-surface.md](../../docs/sandbox-outside-in.md)
 
 ```text
 # Hub external
